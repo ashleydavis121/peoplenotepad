@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>people Notepad</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: #e9e9e9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .notepad-container {
+            width: 90%;
+            max-width: 1200px;
+            height: 90%;
+            border: 1px solid #ccc;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .header {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 15px;
+            font-size: 1.2em;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #0056b3;
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Full-screen button styling */
+        #toggleScreenBtn {
+            font-size: 20px;
+            padding: 0;
+            background: none;
+            border: none;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .menu-bar {
+            background-color: #f0f0f0;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 0 10px;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        .menu-item {
+            position: relative;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 0.9em;
+            color: #333;
+        }
+        .menu-item:hover {
+            background-color: #e0e0e0;
+        }
+
+        /* Dropdown menu styling */
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: #fff;
+            min-width: 160px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            z-index: 1000;
+            border: 1px solid #ccc;
+            list-style-type: none;
+            padding: 5px 0;
+            margin: 0;
+        }
+        .menu-item:hover .dropdown-content {
+            display: block;
+        }
+        .dropdown-content li {
+            padding: 8px 12px;
+            color: black;
+            display: block;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f1f1;
+        }
+        .dropdown-content li:last-child {
+            border-bottom: none;
+        }
+        .dropdown-content li:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* New dropdown styling */
+        .dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: #fff;
+            min-width: 180px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            z-index: 1000;
+            border: 1px solid #ccc;
+            padding: 5px 0;
+        }
+        .menu-item:hover .dropdown {
+            display: block;
+        }
+        .dropdown div {
+            padding: 8px 12px;
+            color: black;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f1f1;
+        }
+        .dropdown div:last-child {
+            border-bottom: none;
+        }
+        .dropdown div:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .toolbar {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .toolbar-group {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+        .toolbar-icon {
+            font-size: 20px;
+            cursor: pointer;
+            color: #555;
+            padding: 5px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        .toolbar-icon:hover {
+            background-color: #e9ecef;
+        }
+        .dropdown-select {
+            border: 1px solid #ccc;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: #fff;
+        }
+        .format-btn {
+            padding: 6px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .format-btn:hover {
+            background-color: #e9ecef;
+        }
+        
+        .document-tabs {
+            background-color: #e9ecef;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #ccc;
+            overflow-x: auto;
+        }
+        .tab {
+            padding: 8px 15px;
+            font-size: 0.9em;
+            cursor: pointer;
+            background-color: #f0f0f0;
+            border-right: 1px solid #ccc;
+            border-left: 1px solid transparent;
+            border-top: 2px solid transparent;
+            position: relative;
+            top: 1px;
+            white-space: nowrap;
+        }
+        .tab.active {
+            background-color: #fff;
+            border-top: 2px solid #007bff;
+            border-left: 1px solid #ccc;
+            z-index: 1;
+        }
+        .tab-close {
+            margin-left: 8px;
+            font-size: 12px;
+            color: #888;
+        }
+        .new-tab-btn {
+            padding: 8px 12px;
+            font-size: 1.2em;
+            cursor: pointer;
+            color: #007bff;
+        }
+
+        .editor {
+            flex-grow: 1;
+            padding: 20px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 16px;
+            outline: none;
+            overflow-y: auto;
+            line-height: 1.5;
+            caret-color: #000;
+        }
+
+        .footer {
+            background-color: #f0f0f0;
+            border-top: 1px solid #e0e0e0;
+            padding: 5px 15px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            font-size: 0.8em;
+            color: #666;
+            gap: 15px;
+        }
+
+        /* Simple Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close-btn:hover,
+        .close-btn:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Modal specific styles */
+        #saveAsModal .modal-content, #newFileModal .modal-content, #renameTabModal .modal-content, #fontModal .modal-content, #goToModal .modal-content {
+            text-align: left;
+            padding: 25px;
+        }
+        #saveAsModal h3, #newFileModal h3, #renameTabModal h3, #fontModal h3, #goToModal h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        #saveAsModal input, #newFileModal input, #renameTabModal input, #fontModal select, #goToModal input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        #saveAsModal .modal-buttons, #newFileModal .modal-buttons, #renameTabModal .modal-buttons, #fontModal .modal-buttons, #goToModal .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        #saveAsModal .modal-buttons button, #newFileModal .modal-buttons button, #renameTabModal .modal-buttons button, #fontModal .modal-buttons button, #goToModal .modal-buttons button {
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+        }
+        #saveAsModal .modal-buttons .ok-btn, #newFileModal .modal-buttons .ok-btn, #renameTabModal .modal-buttons .ok-btn, #fontModal .modal-buttons .ok-btn, #goToModal .modal-buttons .ok-btn {
+            background-color: #007bff;
+            color: #fff;
+        }
+        #saveAsModal .modal-buttons .cancel-btn, #newFileModal .modal-buttons .cancel-btn, #renameTabModal .modal-buttons .cancel-btn, #fontModal .modal-buttons .cancel-btn, #goToModal .modal-buttons .cancel-btn {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        .find-bar {
+            background-color: #e9ecef;
+            border-bottom: 1px solid #ccc;
+            padding: 8px 15px;
+            display: none; /* Initially hidden */
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .find-bar label {
+            font-size: 0.9em;
+            color: #333;
+        }
+        .find-bar input {
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .find-bar button {
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .find-bar button:hover {
+            background-color: #f0f0f0;
+        }
+        .menu-item-with-checkmark {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .checkmark {
+            margin-left: 10px;
+            color: #007bff;
+            font-weight: bold;
+        }
+        .nested-dropdown {
+            position: absolute;
+            top: -5px; /* Adjust to align with the parent item */
+            left: 100%;
+            background-color: #fff;
+            min-width: 160px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            z-index: 1001;
+            border: 1px solid #ccc;
+            display: none;
+            padding: 5px 0;
+        }
+        .nested-item:hover > .nested-dropdown {
+            display: block;
+        }
+        .nested-item {
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="notepad-container">
+        <div class="header">
+            <span>people Notepad</span>
+            <div class="window-controls">
+                <button id="toggleScreenBtn" title="Toggle Fullscreen">
+                    <span id="fullscreenIcon">🖥️</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="menu-bar">
+            <div class="menu-item">
+                File
+                <div class="dropdown" id="fileDropdown">
+                    <div id="fileNew">New</div>
+                    <div id="fileNewTab">New Tab</div>
+                    <div id="fileOpen">Open...</div>
+                    <div id="fileSave">Save</div>
+                    <div id="fileSaveAs">Save As...</div>
+                    <hr style="margin: 5px 0; border-color: #e0e0e0;">
+                    <div id="filePrint">Print...</div>
+                </div>
+            </div>
+            <div class="menu-item">
+                Edit
+                <ul class="dropdown-content" id="editDropdown">
+                    <li id="editUndo">Undo</li>
+                    <li id="editRedo">Redo</li>
+                    <li id="editRename">Rename Tab</li>
+                    <hr style="margin: 5px 0;">
+                    <li id="editFind">Find...</li>
+                    <li id="editReplace">Replace...</li>
+                    <li id="editGoTo">Go To...</li>
+                    <hr style="margin: 5px 0;">
+                    <li id="editSelectAll">Select All</li>
+                    <li id="editTimeDate">Time/Date</li>
+                </ul>
+            </div>
+            <div class="menu-item">
+                Format
+                <ul class="dropdown-content" id="formatDropdown">
+                    <li id="formatFont">Font...</li>
+                </ul>
+            </div>
+            <div class="menu-item">
+                View
+                <ul class="dropdown-content" id="viewDropdown">
+                    <li class="nested-item">
+                        Zoom &raquo;
+                        <ul class="nested-dropdown">
+                            <li id="zoomIn">Zoom In</li>
+                            <li id="zoomOut">Zoom Out</li>
+                            <li id="zoomReset">Restore Default Zoom</li>
+                        </ul>
+                    </li>
+                    <li id="viewStatusBar" class="menu-item-with-checkmark">
+                        Status Bar <span id="statusBarCheckmark" class="checkmark">✓</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="menu-item">
+                Help
+                <ul class="dropdown-content" id="helpDropdown">
+                    <li id="helpAbout">About Notepad</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <div class="toolbar-group">
+                <span class="toolbar-icon" id="newFileIcon">📄</span>
+                <span class="toolbar-icon" id="saveIcon">💾</span>
+                <span class="toolbar-icon" id="openIcon">🗀</span>
+                <span class="toolbar-icon" id="printIcon">🖶</span>
+            </div>
+            <div class="toolbar-group">
+                <span class="toolbar-icon" id="undoIcon">↩️</span>
+                <span class="toolbar-icon" id="redoIcon">↪️</span>
+            </div>
+            <div class="toolbar-group">
+                <span class="toolbar-icon" id="findIcon">🔎</span>
+                <span class="toolbar-icon" id="replaceIcon">🔍</span>
+            </div>
+            <div class="toolbar-group">
+                <select class="dropdown-select" id="fontFamilySelectToolbar">
+                    <option value="Inter, sans-serif">Inter</option>
+                    <option value="Arial, sans-serif">Arial</option>
+                    <option value="Courier New, monospace">Courier New</option>
+                    <option value="Georgia, serif">Georgia</option>
+                    <option value="Times New Roman, serif">Times New Roman</option>
+                    <option value="'Comic Sans MS', cursive">Comic Sans MS</option>
+                    <option value="'Impact', fantasy">Impact</option>
+                    <option value="'Lucida Console', monospace">Lucida Console</option>
+                    <option value="'Palatino Linotype', 'Book Antiqua', Palatino, serif">Palatino Linotype</option>
+                    <option value="Verdana, sans-serif">Verdana</option>
+                </select>
+                <select class="dropdown-select" id="fontSizeSelectToolbar">
+                    <option value="8px">8</option>
+                    <option value="9px">9</option>
+                    <option value="10px">10</option>
+                    <option value="12px">12</option>
+                    <option value="14px">14</option>
+                    <option value="16px" selected>16</option>
+                    <option value="18px">18</option>
+                    <option value="20px">20</option>
+                    <option value="22px">22</option>
+                    <option value="24px">24</option>
+                    <option value="26px">26</option>
+                    <option value="28px">28</option>
+                    <option value="30px">30</option>
+                    <option value="32px">32</option>
+                    <option value="36px">36</option>
+                    <option value="48px">48</option>
+                    <option value="54px">54</option>
+                    <option value="60px">60</option>
+                    <option value="72px">72</option>
+                </select>
+            </div>
+            <div class="toolbar-group">
+                <button class="format-btn" id="boldBtn">B</button>
+                <button class="format-btn" id="italicBtn">I</button>
+                <button class="format-btn" id="underlineBtn">U</button>
+            </div>
+        </div>
+        
+        <div class="find-bar" id="findBar">
+            <label for="findInput">Find:</label>
+            <input type="text" id="findInput">
+            <label for="replaceInput">Replace with:</label>
+            <input type="text" id="replaceInput">
+            <button id="findNextBtn">Find Next</button>
+            <button id="replaceBtn">Replace</button>
+            <button id="replaceAllBtn">Replace All</button>
+            <button id="findCloseBtn">Close</button>
+        </div>
+
+        <div class="document-tabs" id="documentTabs">
+            <div class="tab active" data-id="1">
+                Untitled * <span class="tab-close">x</span>
+            </div>
+            <span class="new-tab-btn" id="newTabBtn">+</span>
+        </div>
+
+        <div class="editor" contenteditable="true" spellcheck="false">Start typing...</div>
+
+        <div class="footer">
+            <span id="lineCol">Ln 1, Col 1</span>
+            <span id="wordCount">Words: 0</span>
+            <span id="charCount">Chars: 0</span>
+        </div>
+    </div>
+
+    <!-- The default Modal for simple messages -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="modalClose">&times;</span>
+            <p id="modalMessage"></p>
+        </div>
+    </div>
+    
+    <!-- Go To Modal -->
+    <div id="goToModal" class="modal">
+        <div class="modal-content">
+            <h3>Go To Line</h3>
+            <input type="number" id="goToInput" placeholder="Enter line number...">
+            <div class="modal-buttons">
+                <button class="ok-btn" id="goToOkBtn">Go To</button>
+                <button class="cancel-btn" id="goToCancelBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- New File / New Tab Modal -->
+    <div id="newFileModal" class="modal">
+        <div class="modal-content">
+            <h3 id="newFileModalTitle">New File</h3>
+            <input type="text" id="newFileInput" placeholder="Enter name...">
+            <div class="modal-buttons">
+                <button class="ok-btn" id="newFileOkBtn">Create</button>
+                <button class="cancel-btn" id="newFileCancelBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Rename Tab Modal -->
+    <div id="renameTabModal" class="modal">
+        <div class="modal-content">
+            <h3>Rename Tab</h3>
+            <input type="text" id="renameTabInput" placeholder="Enter new tab name...">
+            <div class="modal-buttons">
+                <button class="ok-btn" id="renameTabOkBtn">Rename</button>
+                <button class="cancel-btn" id="renameTabCancelBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Font Modal -->
+    <div id="fontModal" class="modal">
+        <div class="modal-content">
+            <h3>Font</h3>
+            <div>
+                <label for="fontFamilySelect">Font Family:</label>
+                <select id="fontFamilySelect">
+                    <option value="Inter, sans-serif">Inter</option>
+                    <option value="Arial, sans-serif">Arial</option>
+                    <option value="Courier New, monospace">Courier New</option>
+                    <option value="Georgia, serif">Georgia</option>
+                    <option value="Times New Roman, serif">Times New Roman</option>
+                    <option value="'Comic Sans MS', cursive">Comic Sans MS</option>
+                    <option value="'Impact', fantasy">Impact</option>
+                    <option value="'Lucida Console', monospace">Lucida Console</option>
+                    <option value="'Palatino Linotype', 'Book Antiqua', Palatino, serif">Palatino Linotype</option>
+                    <option value="Verdana, sans-serif">Verdana</option>
+                </select>
+            </div>
+            <div>
+                <label for="fontSizeSelect">Font Size:</label>
+                <select id="fontSizeSelect">
+                    <option value="8px">8</option>
+                    <option value="9px">9</option>
+                    <option value="10px">10</option>
+                    <option value="12px">12</option>
+                    <option value="14px">14</option>
+                    <option value="16px" selected>16</option>
+                    <option value="18px">18</option>
+                    <option value="20px">20</option>
+                    <option value="22px">22</option>
+                    <option value="24px">24</option>
+                    <option value="26px">26</option>
+                    <option value="28px">28</option>
+                    <option value="30px">30</option>
+                    <option value="32px">32</option>
+                    <option value="36px">36</option>
+                    <option value="48px">48</option>
+                    <option value="54px">54</option>
+                    <option value="60px">60</option>
+                    <option value="72px">72</option>
+                </select>
+            </div>
+            <div class="modal-buttons" style="margin-top: 20px;">
+                <button class="ok-btn" id="fontOkBtn">OK</button>
+                <button class="cancel-btn" id="fontCancelBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save As Modal -->
+    <div id="saveAsModal" class="modal">
+        <div class="modal-content">
+            <h3>Save File</h3>
+            <input type="text" id="saveAsInput" placeholder="Enter file name...">
+            <div class="modal-buttons">
+                <button class="ok-btn" id="saveAsOkBtn">Save</button>
+                <button class="cancel-btn" id="saveAsCancelBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const editor = document.querySelector('.editor');
+            const documentTabs = document.getElementById('documentTabs');
+            const newTabBtn = document.getElementById('newTabBtn');
+            const findBar = document.getElementById('findBar');
+            const findInput = document.getElementById('findInput');
+            const replaceInput = document.getElementById('replaceInput');
+            const findNextBtn = document.getElementById('findNextBtn');
+            const replaceBtn = document.getElementById('replaceBtn');
+            const replaceAllBtn = document.getElementById('replaceAllBtn');
+            const findCloseBtn = document.getElementById('findCloseBtn');
+            const toggleScreenBtn = document.getElementById('toggleScreenBtn');
+            const fullscreenIcon = document.getElementById('fullscreenIcon');
+            const notepadContainer = document.querySelector('.notepad-container');
+            const boldBtn = document.getElementById('boldBtn');
+            const italicBtn = document.getElementById('italicBtn');
+            const underlineBtn = document.getElementById('underlineBtn');
+            
+            let activeTabId = 1;
+            let tabData = {
+                '1': {
+                    content: 'Start typing...',
+                    name: 'Untitled',
+                    isSaved: false,
+                    fontFamily: 'Courier New, monospace',
+                    fontSize: '16px'
+                }
+            };
+            let tabCounter = 1;
+            let lastSearch = '';
+
+            function showMessageModal(message) {
+                const modal = document.getElementById('modal');
+                const modalMessage = document.getElementById('modalMessage');
+                const modalClose = document.getElementById('modalClose');
+
+                modalMessage.textContent = message;
+                modal.style.display = 'flex';
+
+                modalClose.onclick = () => {
+                    modal.style.display = 'none';
+                };
+
+                window.onclick = (event) => {
+                    if (event.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                };
+            }
+
+            function showNewFileModal(isNewTab) {
+                const modal = document.getElementById('newFileModal');
+                const title = document.getElementById('newFileModalTitle');
+                const input = document.getElementById('newFileInput');
+                const okBtn = document.getElementById('newFileOkBtn');
+
+                if (isNewTab) {
+                    title.textContent = "New Tab";
+                    input.placeholder = "Enter new tab name...";
+                } else {
+                    title.textContent = "New File";
+                    input.placeholder = "Enter new file name...";
+                }
+                
+                input.value = "";
+                modal.dataset.isNewTab = isNewTab;
+                modal.style.display = 'flex';
+                input.focus();
+            }
+
+            document.getElementById('newFileOkBtn').addEventListener('click', () => {
+                const modal = document.getElementById('newFileModal');
+                const isNewTab = modal.dataset.isNewTab === 'true';
+                const input = document.getElementById('newFileInput');
+                const name = input.value.trim() || (isNewTab ? 'Untitled' : 'Untitled');
+                if (name) {
+                    addNewTab(name);
+                }
+                modal.style.display = 'none';
+            });
+
+            document.getElementById('newFileCancelBtn').addEventListener('click', () => {
+                document.getElementById('newFileModal').style.display = 'none';
+            });
+            
+            function updateActiveTabUI() {
+                const currentTab = document.querySelector(`.tab[data-id="${activeTabId}"]`);
+                if (currentTab) {
+                    const savedState = tabData[activeTabId].isSaved;
+                    const tabName = tabData[activeTabId].name;
+                    currentTab.innerHTML = savedState ? `${tabName} <span class="tab-close">x</span>` : `${tabName} * <span class="tab-close">x</span>`;
+                }
+            }
+
+            function switchTab(newTabId) {
+                document.querySelectorAll('.tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                activeTabId = newTabId;
+                const newTab = document.querySelector(`.tab[data-id="${activeTabId}"]`);
+                newTab.classList.add('active');
+                editor.innerHTML = tabData[activeTabId].content;
+                editor.style.fontFamily = tabData[activeTabId].fontFamily;
+                editor.style.fontSize = tabData[activeTabId].fontSize;
+                updateLineCol();
+            }
+
+            function addNewTab(tabName, content = '') {
+                tabCounter++;
+                tabData[tabCounter] = {
+                    content: content || '',
+                    name: tabName || `Untitled`,
+                    isSaved: false,
+                    fontFamily: 'Courier New, monospace',
+                    fontSize: '16px'
+                };
+                const newTab = document.createElement('div');
+                newTab.className = 'tab';
+                newTab.dataset.id = tabCounter;
+                newTab.innerHTML = `${tabData[tabCounter].name} * <span class="tab-close">x</span>`;
+                documentTabs.insertBefore(newTab, newTabBtn);
+
+                newTab.addEventListener('click', (event) => {
+                    if (event.target.classList.contains('tab-close')) {
+                        event.stopPropagation();
+                        closeTab(newTab.dataset.id);
+                    } else {
+                        switchTab(newTab.dataset.id);
+                    }
+                });
+
+                switchTab(tabCounter);
+            }
+
+            function closeTab(tabId) {
+                const tabs = document.querySelectorAll('.tab');
+                if (tabs.length === 1) {
+                    tabData[tabId] = { content: '', name: 'Untitled', isSaved: false };
+                    switchTab(tabId);
+                    return;
+                }
+
+                const tabToClose = document.querySelector(`.tab[data-id="${tabId}"]`);
+                tabToClose.remove();
+                delete tabData[tabId];
+
+                const remainingTabs = document.querySelectorAll('.tab');
+                if (remainingTabs.length > 0) {
+                    const newActiveTabId = remainingTabs[remainingTabs.length - 1].dataset.id;
+                    switchTab(newActiveTabId);
+                }
+            }
+
+            function updateLineCol() {
+                const selection = window.getSelection();
+                if (selection.rangeCount > 0) {
+                    const range = selection.getRangeAt(0);
+                    const preCaretRange = range.cloneRange();
+                    preCaretRange.selectNodeContents(editor);
+                    preCaretRange.setEnd(range.endContainer, range.endOffset);
+                    let text = preCaretRange.toString();
+                    let lines = text.split('\n');
+                    let line = lines.length;
+                    let col = lines[lines.length - 1].length;
+                    document.getElementById('lineCol').textContent = `Ln ${line}, Col ${col}`;
+                    document.getElementById('wordCount').textContent = `Words: ${text.split(/\s+/).filter(word => word.length > 0).length}`;
+                    document.getElementById('charCount').textContent = `Chars: ${text.length}`;
+                }
+            }
+
+            function findNext(searchTerm, select = true) {
+                if (searchTerm === '') {
+                    return false;
+                }
+                lastSearch = searchTerm;
+                const found = window.find(searchTerm, false, false, true, false, false, false);
+                return found;
+            }
+
+            function replaceCurrent() {
+                const searchTerm = findInput.value;
+                const replaceTerm = replaceInput.value;
+                if (!searchTerm || !replaceTerm) return;
+
+                const selection = window.getSelection();
+                if (selection.toString() === searchTerm) {
+                    document.execCommand('insertText', false, replaceTerm);
+                    findNext(searchTerm);
+                }
+            }
+
+            function replaceAll() {
+                const searchTerm = findInput.value;
+                const replaceTerm = replaceInput.value;
+                if (!searchTerm || !replaceTerm) return;
+
+                editor.focus();
+                document.getElementById('editSelectAll').click();
+                const text = editor.innerText;
+                const newText = text.replace(new RegExp(searchTerm, 'g'), replaceTerm);
+                editor.innerText = newText;
+                
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+            }
+
+            // Text Formatting Function
+            function formatText(command) {
+                document.execCommand(command, false, null);
+                editor.focus();
+            }
+            
+            boldBtn.addEventListener('click', () => formatText('bold'));
+            italicBtn.addEventListener('click', () => formatText('italic'));
+            underlineBtn.addEventListener('click', () => formatText('underline'));
+
+            document.getElementById('findIcon').addEventListener('click', () => {
+                findBar.style.display = 'flex';
+                findInput.focus();
+            });
+            document.getElementById('replaceIcon').addEventListener('click', () => {
+                findBar.style.display = 'flex';
+                findInput.focus();
+            });
+            document.getElementById('editFind').addEventListener('click', () => {
+                findBar.style.display = 'flex';
+                findInput.focus();
+            });
+            document.getElementById('editReplace').addEventListener('click', () => {
+                findBar.style.display = 'flex';
+                findInput.focus();
+            });
+            findCloseBtn.addEventListener('click', () => {
+                findBar.style.display = 'none';
+            });
+
+            findNextBtn.addEventListener('click', () => {
+                const searchTerm = findInput.value;
+                if (!findNext(searchTerm)) {
+                    showMessageModal('No more occurrences found.');
+                }
+            });
+            replaceBtn.addEventListener('click', replaceCurrent);
+            replaceAllBtn.addEventListener('click', replaceAll);
+
+            document.getElementById('fileNew').addEventListener('click', () => {
+                showNewFileModal(false);
+            });
+            document.getElementById('fileNewTab').addEventListener('click', () => {
+                showNewFileModal(true);
+            });
+            document.getElementById('newFileIcon').addEventListener('click', () => {
+                showNewFileModal(false);
+            });
+
+            document.getElementById('fileOpen').addEventListener('click', () => {
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.accept = '.txt, .html, .js, .css, .md';
+                fileInput.onchange = e => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            addNewTab(file.name, event.target.result);
+                        };
+                        reader.readAsText(file);
+                    }
+                };
+                fileInput.click();
+            });
+            document.getElementById('openIcon').addEventListener('click', () => {
+                document.getElementById('fileOpen').click();
+            });
+            
+            document.getElementById('fileSave').addEventListener('click', () => {
+                const saveAsModal = document.getElementById('saveAsModal');
+                const saveAsInput = document.getElementById('saveAsInput');
+                saveAsModal.style.display = 'flex';
+                saveAsInput.focus();
+            });
+            document.getElementById('saveIcon').addEventListener('click', () => {
+                document.getElementById('fileSave').click();
+            });
+            document.getElementById('fileSaveAs').addEventListener('click', () => {
+                document.getElementById('fileSave').click();
+            });
+
+            const saveAsModal = document.getElementById('saveAsModal');
+            const saveAsInput = document.getElementById('saveAsInput');
+            const saveAsOkBtn = document.getElementById('saveAsOkBtn');
+            const saveAsCancelBtn = document.getElementById('saveAsCancelBtn');
+
+            saveAsOkBtn.addEventListener('click', () => {
+                const fileName = saveAsInput.value.trim() || tabData[activeTabId].name;
+                const blob = new Blob([editor.innerText], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName.endsWith('.txt') ? fileName : `${fileName}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                saveAsModal.style.display = 'none';
+
+                tabData[activeTabId].isSaved = true;
+                tabData[activeTabId].name = fileName;
+                updateActiveTabUI();
+            });
+            saveAsCancelBtn.addEventListener('click', () => {
+                saveAsModal.style.display = 'none';
+            });
+            window.addEventListener('click', (event) => {
+                if (event.target === saveAsModal) {
+                    saveAsModal.style.display = 'none';
+                }
+            });
+
+            document.getElementById('filePrint').addEventListener('click', () => {
+                window.print();
+            });
+            document.getElementById('printIcon').addEventListener('click', () => {
+                document.getElementById('filePrint').click();
+            });
+
+            document.getElementById('editRename').addEventListener('click', () => {
+                const renameTabModal = document.getElementById('renameTabModal');
+                const renameTabInput = document.getElementById('renameTabInput');
+                renameTabInput.value = tabData[activeTabId].name;
+                renameTabModal.style.display = 'flex';
+                renameTabInput.focus();
+            });
+            document.getElementById('renameTabOkBtn').addEventListener('click', () => {
+                const newName = document.getElementById('renameTabInput').value.trim();
+                if (newName) {
+                    tabData[activeTabId].name = newName;
+                    tabData[activeTabId].isSaved = false;
+                    updateActiveTabUI();
+                }
+                document.getElementById('renameTabModal').style.display = 'none';
+            });
+            document.getElementById('renameTabCancelBtn').addEventListener('click', () => {
+                document.getElementById('renameTabModal').style.display = 'none';
+            });
+
+            document.getElementById('editGoTo').addEventListener('click', () => {
+                document.getElementById('goToModal').style.display = 'flex';
+                document.getElementById('goToInput').focus();
+            });
+            document.getElementById('goToOkBtn').addEventListener('click', () => {
+                const lineToGoTo = parseInt(document.getElementById('goToInput').value, 10);
+                const lines = editor.innerText.split('\n');
+                if (lineToGoTo > 0 && lineToGoTo <= lines.length) {
+                    let textToSelect = lines.slice(0, lineToGoTo - 1).join('\n');
+                    editor.focus();
+                    const selection = window.getSelection();
+                    const range = document.createRange();
+                    range.setStart(editor.firstChild, textToSelect.length);
+                    range.collapse(true);
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                    document.getElementById('goToModal').style.display = 'none';
+                } else {
+                    showMessageModal(`Invalid line number. Please enter a number between 1 and ${lines.length}.`);
+                }
+            });
+            document.getElementById('goToCancelBtn').addEventListener('click', () => {
+                document.getElementById('goToModal').style.display = 'none';
+            });
+            
+            document.getElementById('editSelectAll').addEventListener('click', () => {
+                const range = document.createRange();
+                range.selectNodeContents(editor);
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+            });
+
+            document.getElementById('editTimeDate').addEventListener('click', () => {
+                const now = new Date();
+                const timeDate = now.toLocaleTimeString() + ' ' + now.toLocaleDateString();
+                editor.focus();
+                document.execCommand('insertText', false, timeDate);
+            });
+            
+            document.getElementById('editUndo').addEventListener('click', () => {
+                document.execCommand('undo');
+            });
+            document.getElementById('undoIcon').addEventListener('click', () => {
+                document.execCommand('undo');
+            });
+            document.getElementById('editRedo').addEventListener('click', () => {
+                document.execCommand('redo');
+            });
+            document.getElementById('redoIcon').addEventListener('click', () => {
+                document.execCommand('redo');
+            });
+
+            document.getElementById('zoomIn').addEventListener('click', () => {
+                const currentSize = parseFloat(window.getComputedStyle(editor).fontSize);
+                editor.style.fontSize = `${currentSize + 2}px`;
+            });
+            document.getElementById('zoomOut').addEventListener('click', () => {
+                const currentSize = parseFloat(window.getComputedStyle(editor).fontSize);
+                editor.style.fontSize = `${currentSize - 2}px`;
+            });
+            document.getElementById('zoomReset').addEventListener('click', () => {
+                editor.style.fontSize = '16px';
+            });
+            
+            document.getElementById('viewStatusBar').addEventListener('click', () => {
+                const footer = document.querySelector('.footer');
+                const checkmark = document.getElementById('statusBarCheckmark');
+                if (footer.style.display === 'none') {
+                    footer.style.display = 'flex';
+                    checkmark.style.display = 'inline';
+                } else {
+                    footer.style.display = 'none';
+                    checkmark.style.display = 'none';
+                }
+            });
+            
+            document.getElementById('formatFont').addEventListener('click', () => {
+                document.getElementById('fontModal').style.display = 'flex';
+            });
+            document.getElementById('fontOkBtn').addEventListener('click', () => {
+                const fontFamily = document.getElementById('fontFamilySelect').value;
+                const fontSize = document.getElementById('fontSizeSelect').value;
+                
+                tabData[activeTabId].fontFamily = fontFamily;
+                tabData[activeTabId].fontSize = fontSize;
+                
+                editor.style.fontFamily = fontFamily;
+                editor.style.fontSize = fontSize;
+                document.getElementById('fontModal').style.display = 'none';
+            });
+            document.getElementById('fontCancelBtn').addEventListener('click', () => {
+                document.getElementById('fontModal').style.display = 'none';
+            });
+
+            document.getElementById('fontFamilySelectToolbar').addEventListener('change', (e) => {
+                const newFont = e.target.value;
+                editor.style.fontFamily = newFont;
+                tabData[activeTabId].fontFamily = newFont;
+            });
+            document.getElementById('fontSizeSelectToolbar').addEventListener('change', (e) => {
+                const newSize = e.target.value;
+                editor.style.fontSize = newSize;
+                tabData[activeTabId].fontSize = newSize;
+            });
+            
+            document.getElementById('helpAbout').addEventListener('click', () => {
+                showMessageModal('Advanced Notepad\nVersion 1.0\nCreated by Gemini');
+            });
+            
+            toggleScreenBtn.addEventListener('click', () => {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen();
+                } else {
+                    document.exitFullscreen();
+                }
+            });
+
+            document.addEventListener('fullscreenchange', () => {
+                if (document.fullscreenElement) {
+                    fullscreenIcon.textContent = '🗗';
+                    notepadContainer.style.width = '100vw';
+                    notepadContainer.style.height = '100vh';
+                    notepadContainer.style.maxWidth = '100vw';
+                    notepadContainer.style.maxHeight = '100vh';
+                    notepadContainer.style.borderRadius = '0';
+                    notepadContainer.style.boxShadow = 'none';
+                } else {
+                    fullscreenIcon.textContent = '🖥️';
+                    notepadContainer.style.width = '90%';
+                    notepadContainer.style.height = '90%';
+                    notepadContainer.style.maxWidth = '1200px';
+                    notepadContainer.style.maxHeight = '90%';
+                    notepadContainer.style.borderRadius = '8px';
+                    notepadContainer.style.boxShadow = '0 4px 15px rgba(0,0,0,0.15)';
+                }
+            });
+
+            editor.addEventListener('input', () => {
+                if (tabData[activeTabId]) {
+                    tabData[activeTabId].content = editor.innerHTML;
+                    tabData[activeTabId].isSaved = false;
+                    updateActiveTabUI();
+                    updateLineCol();
+                }
+            });
+
+            updateActiveTabUI();
+            
+            const firstTab = document.querySelector('.tab[data-id="1"]');
+            firstTab.addEventListener('click', (event) => {
+                if (event.target.classList.contains('tab-close')) {
+                    event.stopPropagation();
+                    closeTab(firstTab.dataset.id);
+                } else {
+                    switchTab(firstTab.dataset.id);
+                }
+            });
+            
+            newTabBtn.addEventListener('click', () => {
+                showNewFileModal(true);
+            });
+
+        });
+    </script>
+</body>
+</html>
